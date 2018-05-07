@@ -37,12 +37,38 @@ library(GGally)
 library(gridExtra)
 library(diptest)
 library(knitr)
+```
 
-
-'``{r echo=FALSE, Load_the_Data}
+```{r echo=FALSE, Load_the_Data}
 # Load the Data
-w_winedf = read.csv('wineQualityWhites.csv')
-
-```
+winedf = read.csv('wineQualityWhites.csv')
 ```
 
+> This tidy data set contains 1,599 red wines with 11 variables 
+on the chemical properties of the wine. 
+At least 3 wine experts rated the quality of each wine, providing a rating 
+between 0 (very bad) and 10 (very excellent).
+Here we will explore which chemical properties influence the taste of red wines.
+
+# Univariate Plots Section
+
+
+> First let's take a look at some of the variables
+and see what the values look like'
+
+```{r echo=FALSE, Univariate_Plots}
+names(winedf)
+summary(winedf)
+#X is not a useable variable so we will remove below
+wines <- subset(winedf, select = -X)
+head(wines)
+```
+> After removing the unneeded X variable, we can see
+eleven attributes that may contribute to the taste
+and quality rating of the wine.
+
+```{r echo=FALSE, Univariate_Plots_1}
+summary(wines$quality)
+ggplot(wines, aes(quality))+
+  geom_histogram(binwidth = 1)
+```
