@@ -44,11 +44,11 @@ library(knitr)
 winedf = read.csv('wineQualityWhites.csv')
 ```
 
-> This tidy data set contains 4,898 red wines with 12 variables 
+> This tidy data set contains 4,898 red wines with 11 variables 
 on the chemical properties of the wine. 
 At least 3 wine experts rated the quality of each wine, providing a rating 
 between 0 (very bad) and 10 (very excellent).
-Here we will explore which chemical properties influence the taste of red wines.
+Here we will explore which chemical properties influence the taste of white wines.
 
 # Univariate Plots Section
 
@@ -64,7 +64,7 @@ wines <- subset(winedf, select = -X)
 head(wines)
 ```
 > After removing the unneeded X variable, we can see
-twelve attributes that may contribute to the taste
+eleven attributes that may contribute to the taste
 and quality rating of the wine.
 
 ```{r echo=FALSE, Univariate_Plots_1}
@@ -73,48 +73,78 @@ ggplot(wines, aes(quality))+
   geom_histogram(binwidth = 1)
 ```
 
->Here we can see that the quality ranges from
+> Here we can see that the quality ranges from
 3 to 9 with a mean rating of 5.878.
-Next we'll plot an analyze resiudal sugars. These
-are the sugars that are left after over after red 
-wines under 1 gram/liter so we shouldn't expect many
-data points below or around 1.
+Next we'll plot an analyze resiudal sugars. This is 
+the amount of sugar remaining after fermentation stops, 
+it's rare to find wines with less than 1 gram/liter 
+and wines with greater than 45 grams/liter are considered sweet 
+so we shouldn't expect many data points below 1.
 
 ```{r echo=FALSE, Univariate_Plots_2}
 summary(wines$residual.sugar)
 ggplot(wines, aes(residual.sugar))+
-  geom_histogram(bins = 10)
+  geom_histogram(bins = 50)
 ```
 
->After plotting Residual Sugar within the wines we
-can see that it is highly skewed to the right. Next 
+> After plotting Residual Sugar within the wines we
+can see that it is highly skewed to the left. We can also see that
+we have no data points over 45 gram/liter ie sweet wines. However, it does appear that
+we have quite a few data points near 1 gram/liter. Given this we'll next 
 we'll plot just the bottom 95% to get a better grasp
-of the distribution of residual sugars'
+of the distribution of residual sugars.
 
 ```{r echo=FALSE, Univariate_Plots_3}
 summary(subset(wines$residual.sugar,
                wines$residual.sugar <
                  quantile(wines$residual.sugar,
-                          0.95)))
+                          .95)))
 ggplot(wines, aes(residual.sugar))+
   geom_histogram(binwidth = .1)+
-  xlim(0, quantile(wines$residual.sugar, 0.95))+
+  xlim(0, quantile(wines$residual.sugar, .95))+
   xlab("residual.sugar (Lower 95%)")+
   geom_vline(xintercept = mean(wines$residual.sugar), color = 'blue')+
-  geom_vline(xintercept = median(wines$residual.sugar), color = 'red')
+  geom_vline(xintercept = median(wines$residual.sugar), color = 'red')+
+  geom_vline(xintercept = 1, color = 'green')
 ```
 
->After elimitating the tail we can see that most wines
-have a residual sugar measurement around 2.2 g/dm^3.Also
-we notice that we only had one point below at 0.900 g/dm^3.
-This agrees with the documentation stating the rarity of red wines
-with residual sugar less than 1 gram/liter
+> After plotting the lower 95% we still have a skewed distribution.
+But this graph does reveal more information. First, the vertical green line denotes 1 gram/liter of sugar.
+Observing the the around this line reveals that we have many wines that according to the citations would be considered rare, given their sugar profile below 1 gram/liter. Previously, I found that Red wines in a similiar study 
+had an average residual sugar count around 2.5 gram/liter and only one data point below 1 gram/liter. However, the white wine sugar profile is very different. As pointed out we have a noteworthy amount of white wines below 1 gram/liter, more than red wines, and an average of 5.77 gram/liter, higher than the red wines. This gives a distribution much wider and perhaps more complex in determing quality than the red wines.
+Another thing to consider is the amount of observations. We have almost 5000 white wine observations vs the 1600 for the red wines. This is more than twice the amount of red wine observations and may have something to contribute towards the wider distribution.
 
-Next we will take a look at the alcohol content of each sample
+> Let's progress to another variable, alcohol content. Again, because of the amount of observations we may see a wider distribution than previously observed in the last study.
+
+
 ```{r echo=FALSE, Univariate_Plots_4}
 summary(wines$alcohol)
 ggplot(wines, aes(alcohol))+
   geom_histogram(binwidth = 0.1)+
   geom_vline(xintercept = mean(wines$alcohol), color ="blue")+
   geom_vline(xintercept = median(wines$alcohol), color='red')
-'''
+```
+
+> After plotting alcohol content we do see a more normalized distribution with a mean around 10.51%.
+Now that we hyper focused on two variables lets create mutiple plots of the remaining variables and try to uncover any remaining anomolies worth exploring.
+
+```{r echo=FALSE, Univariate_Plots_5}
+p1 <- qplot(wines$fixed.acidity)
+p2 <- qplot(wines$volatile.acidity)
+p3 <- qplot(wines$citric.acid)
+p4 <- qplot(wines$chlorides)
+p5 <- qplot(wines$free.sulfur.dioxide)
+p6 <- qplot(wines$total.sulfur.dioxide)
+p7 <- qplot(wines$density)
+p8 <- qplot(wines$pH)
+p9 <- qplot(wines$sulphates)
+
+grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, p9, ncol = 3)
+```
+
+> After analyzing these plots most look well-behaved, ie normal distributions, aside from the sulphates. It appears that it may be slightly bimodal and is worth clarifying. We'll use RStudio's Hartigans dip.test function to test for unimodality/multimodality
+
+```{r echo=FALSE, Univariate_Plots_6}
+qplot(wines$sulphates, binwidth= .01)
+dip.test(wines$sulphates)
+```
