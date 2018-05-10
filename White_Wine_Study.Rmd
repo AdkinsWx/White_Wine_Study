@@ -148,3 +148,5 @@ grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, p9, ncol = 3)
 qplot(wines$sulphates, binwidth= .01)
 dip.test(wines$sulphates)
 ```
+> After running the bimodal test we do return a D value of 0.0245. Note that any value less than 0.05 suggest significant bimodality.
+This could suggest that we have two different populations of white wines with different average sulphate profiles. Using the information from the data citation material we can see that there are several different grapes used to create the white wines. Given this new observation we should pay careful attention when determing if sulphates determine the wine's quality. 
