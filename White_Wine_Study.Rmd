@@ -149,4 +149,31 @@ qplot(wines$sulphates, binwidth= .01)
 dip.test(wines$sulphates)
 ```
 > After running the bimodal test we do return a D value of 0.0245. Note that any value less than 0.05 suggest significant bimodality.
-This could suggest that we have two different populations of white wines with different average sulphate profiles. Using the information from the data citation material we can see that there are several different grapes used to create the white wines. Given this new observation we should pay careful attention when determing if sulphates determine the wine's quality. 
+This could suggest that we have two different populations of white wines with different average sulphate profiles. Using the information from the data citation material we can see that there are several different grapes used to create the white wines. Given this new observation we should pay careful attention when determing if sulphates influence the wine's quality. 
+
+# Univariate Analysis
+
+
+
+### What is the structure of your dataset?
+
+In this data set there are 4898 observations with 12 attributes. Most of the variables are normal
+distributions. With the exception of sulphates (bimodal). It is rare to find a white wine with residual sugar under 1gram/liter how ever our sample have quite a few data points under 1gram/liter. Also, wines with residual sugar around 45 g/l are consider sweet.
+Our data set contains one wine over this threshold with a maximum residual sugar of 65.8 grams/liter meaning we do have one wine that would be consdiered sweet.
+
+### What is/are the main feature(s) of interest in your dataset?
+
+The quality variable captures my interest the most. Quality is scored between 0-10, with 0 being the worst
+and 10 being the best. Our data set shows a min of 3 and a max of 9. I am interested in trying to find what
+attributes contribute to a particular wine's score. 
+
+### What other features in the dataset do you think will help support your \
+investigation into your feature(s) of interest?
+
+After noticing that the sulphates have a bimodal distribution I am curious to see if this has an effect on the wine's quality. Also, when testing red wines alcohol made itself to be a reliable factor in determing the rating of the wine, I am curious if this is the case with our white wine sample as well.
+
+### Did you create any new variables from existing variables in the dataset?
+
+### Of the features you investigated, were there any unusual distributions? \
+Did you perform any operations on the data to tidy, adjust, or change the form \
+of the data? If so, why did you do this?
