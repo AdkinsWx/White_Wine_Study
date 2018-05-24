@@ -136,6 +136,7 @@ p4 <- qplot(wines$chlorides)
 p5 <- qplot(wines$free.sulfur.dioxide)
 p6 <- qplot(wines$total.sulfur.dioxide)
 p7 <- qplot(wines$density)
+
 p8 <- qplot(wines$pH)
 p9 <- qplot(wines$sulphates)
 
@@ -145,7 +146,7 @@ grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, p9, ncol = 3)
 > After analyzing these plots most look well-behaved, ie normal distributions, aside from the sulphates. It appears that it may be slightly bimodal and is worth clarifying. We'll use RStudio's Hartigans dip.test function to test for unimodality/multimodality
 
 ```{r echo=FALSE, Univariate_Plots_6}
-qplot(wines$sulphates, binwidth= .01)
+qplot(wines$sulphates, bins =30)
 dip.test(wines$sulphates)
 ```
 > After running the bimodal test we do return a D value of 0.0245. Note that any value less than 0.05 suggest significant bimodality.
@@ -177,3 +178,38 @@ After noticing that the sulphates have a bimodal distribution I am curious to se
 ### Of the features you investigated, were there any unusual distributions? \
 Did you perform any operations on the data to tidy, adjust, or change the form \
 of the data? If so, why did you do this?
+
+# Bivariate Plots Section
+
+
+> Next we will check the covariance between each of the variables.
+
+```{r echo=FALSE, Bivariate_Plots}
+round(cor(wines), 3)
+ggpairs(wines)
+
+```
+> After viewing the above plot we can see some interesting correlation displayed graphically and with their corresponding correlation coefficient.
+
+> First up we'll look at density. Most chemical elements have a slight to significant correlation with density. This makes physical sense as the addition of each chemical would add to the molar volume of the wine. according to the table residual sugars contribute most to density(correlation of 0.839) with free sulfur dioxide coming in a far second (0.294). The exception to the rule is alcohol with is negatively correlation with denstisy (0.78). This may be due to the chemical properties of alcohol being less dense than water/wine and thus the addition of alcohol and the subtraction of water/wine in a fixed volume will lead to this density change. 
+
+> Next we'll pick out each correlation over 0.50, we'll considered 0.50-0.70 moderately correlated and anything over 0.70 will be strongly correlated. We'll try to focus on what effects our primary interest, quality, but we'll also pick up any other interesting relations and try to interpret their significance.
+
+
+> First up we have is alcohol's relation to quality rating. The correlation coefficient is at 0.436, so it is under our range of 0.5 but it is the highest single relation we have to quality so we will study this further.
+
+
+
+```{r echo=FALSE, Bivariate_Plots_7}
+ggplot(wines, aes(x=alcohol, y =quality))+
+  geom_jitter(alpha = 0.25)+
+  geom_smooth(method = "lm")
+
+
+```
+
+
+> After plotting the alcohol/quality relationship and with the additional help from the trend len we can visually see that there is a positive correlation between them. However, this relationship is only moderately correlated and doesn't appear that alcohol content alone is enough to raise the quality rating of the wine.
+
+> 
+
