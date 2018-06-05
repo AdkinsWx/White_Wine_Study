@@ -191,7 +191,7 @@ ggpairs(wines)
 ```
 > After viewing the above plot we can see some interesting correlation displayed graphically and with their corresponding correlation coefficient.
 
-> First up we'll look at density. Most chemical elements have a slight to significant correlation with density. This makes physical sense as the addition of each chemical would add to the molar volume of the wine. according to the table residual sugars contribute most to density(correlation of 0.839) with free sulfur dioxide coming in a far second (0.294). The exception to the rule is alcohol with is negatively correlation with denstisy (0.78). This may be due to the chemical properties of alcohol being less dense than water/wine and thus the addition of alcohol and the subtraction of water/wine in a fixed volume will lead to this density change. 
+> First up we'll look at density. Most chemical elements have a slight to significant correlation with density. This makes physical sense as the addition of each chemical would add to the molar volume of the wine. according to the table residual sugars contribute most to density(correlation of 0.839) with free sulfur dioxide coming in a far second (0.294). The exception to the rule is alcohol with is negative correlation to denstisy (-0.78). This may be due to the chemical properties of alcohol being less dense than water/wine and thus the addition of alcohol and removal of water in a fixed volume would lower the density. 
 
 > Next we'll pick out each correlation over 0.50, we'll considered 0.50-0.70 moderately correlated and anything over 0.70 will be strongly correlated. We'll try to focus on what effects our primary interest, quality, but we'll also pick up any other interesting relations and try to interpret their significance.
 
@@ -209,7 +209,23 @@ ggplot(wines, aes(x=alcohol, y =quality))+
 ```
 
 
-> After plotting the alcohol/quality relationship and with the additional help from the trend len we can visually see that there is a positive correlation between them. However, this relationship is only moderately correlated and doesn't appear that alcohol content alone is enough to raise the quality rating of the wine.
+> After plotting the alcohol/quality relationship and with the additional help from the trend line we can visually see that there is a positive correlation between them. However, this relationship is only moderately correlated and doesn't appear that alcohol content alone is enough to raise the quality rating of the wine. Given this insight we must seek a good starting point for our bivariate and multivariate analysis. So we'll plot a few more univariate plots before we move on to more complicated graphs.
 
-> 
+> After denisty and acohol the dropoff in correlation ratios between the chemical properties and quality is very steep. So we'll start the next phase of univariate analysis by plotting denisty and remove the outliers to make the plot easier to interpret. 
+
+```{r echo=FALSE, Bivariate_Plots_7}
+p1 <- ggplot(wines, aes(x=density, y = quality))+
+  geom_jitter(aplha = 0.25)+
+  geom_smooth(method = "lm")+
+  xlim(0.99,1.003)
+
+p2 <- ggplot(wines, aes(x = density, y= alcohol))+
+  geom_jitter(aplha = 0.25)+
+  geom_smooth(method = "lm")+
+  xlim(0.987, 1.003)
+
+grid.arrange(p1, p2)
+  
+```
+> The plots above show first weak negative correlation between quality and density and the rather strong correlation between alcohol and density. The latter plot agrees with the chemical properties of alcohol being less dense than water. The first graph between quality and denisty states a very small correlation
 
