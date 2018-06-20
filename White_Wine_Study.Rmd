@@ -25,7 +25,7 @@ knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message = FALSE)
 # Notice that the parameter "echo" was set to FALSE for this code chunk. This
 # prevents the code from displaying in the knitted HTML output. You should set
 # echo=FALSE for all code chunks in your file, unless it makes sense for your
-# report to show the code that generated a particular plot.
+# report to show the code that generated a particular plot.insta
 
 # The other parameters for "message" and "warning" should also be set to FALSE
 # for other code chunks once you have verified that each plot comes out as you
@@ -41,6 +41,7 @@ library(knitr)
 
 ```{r echo=FALSE, Load_the_Data}
 # Load the Data
+
 winedf = read.csv('wineQualityWhites.csv')
 ```
 
@@ -184,7 +185,7 @@ of the data? If so, why did you do this?
 
 > Next we will check the covariance between each of the variables.
 
-```{r echo=FALSE, Bivariate_Plots}
+```{r echo=FALSE, Bivariate_Plots_1}
 round(cor(wines), 3)
 ggpairs(wines)
 
@@ -200,7 +201,7 @@ ggpairs(wines)
 
 
 
-```{r echo=FALSE, Bivariate_Plots_7}
+```{r echo=FALSE, Bivariate_Plots}
 ggplot(wines, aes(x=alcohol, y =quality))+
   geom_jitter(alpha = 0.25)+
   geom_smooth(method = "lm")
@@ -211,7 +212,7 @@ ggplot(wines, aes(x=alcohol, y =quality))+
 
 > After plotting the alcohol/quality relationship and with the additional help from the trend line we can visually see that there is a positive correlation between them. However, this relationship is only moderately correlated and doesn't appear that alcohol content alone is enough to raise the quality rating of the wine. Given this insight we must seek a good starting point for our bivariate and multivariate analysis. So we'll plot a few more univariate plots before we move on to more complicated graphs.
 
-> After denisty and acohol the dropoff in correlation ratios between the chemical properties and quality is very steep. So we'll start the next phase of univariate analysis by plotting denisty and remove the outliers to make the plot easier to interpret. 
+> After denisty and acohol the dropoff in correlation ratios between the chemical properties and quality is very steep. So we'll start the next phase of univariate analysis by plotting denisty and remove the outliers to make the plot easier to interpret.
 
 ```{r echo=FALSE, Bivariate_Plots_7}
 p1 <- ggplot(wines, aes(x=density, y = quality))+
@@ -227,5 +228,81 @@ p2 <- ggplot(wines, aes(x = density, y= alcohol))+
 grid.arrange(p1, p2)
   
 ```
-> The plots above show first weak negative correlation between quality and density and the rather strong correlation between alcohol and density. The latter plot agrees with the chemical properties of alcohol being less dense than water. The first graph between quality and denisty states a very small correlation
+> After removing some outliers, the plots above show first "weak" negative correlation between quality and density and the rather strong correlation between alcohol and density. Density The latter plot agrees with the chemical properties of alcohol being less dense than water. The first graph between quality and denisty states a very small correlation between the two.
 
+```{r Bivariate_Plots_8}
+
+chlr_lim <- ggplot(wines, aes(x=chlorides, y=quality))+
+  geom_jitter(alpha = 0.25)+
+  geom_smooth(method="lm")+
+  xlim(0, 0.1)+
+  ggtitle("X Limit at 0.100")
+chlr <- ggplot(wines, aes(x=chlorides, y=quality))+
+  geom_jitter(aplha= 0.25)+
+  geom_smooth(method="lm")+
+  ggtitle("No X Limit")
+
+grid.arrange(chlr, chlr_lim)
+  
+```
+> Next I plottted chlorides against quality. After alcohol and density, the amount of of chlorides present had the next stronget correlation value. Again it's good to note that this correlation is relatively weak and negative. This adds to the idea that there is not going to be one factor that will change the quality rating by it's own merit. Thus it will take a combination of two or more chemical properties to change the quality rating.
+
+# Multivariate Plots Section
+
+> Now we are going to progress to the mutlivariate analysis section. Here I hope to find a combination of chemical properties that will answer our original question of "What chemical properties determine quality?" with more conviction that what I have been able to supply thus far. Given that the bivaraite analysis yielded only weak correlation values it leads me to believe that a combination of chemical properties may be the right place to find a meaningful correlation value.
+
+
+```{r Multivariate_Plots_1}
+#Removing outliers from the variable chlorides to create a less noisy gradient plot
+library(data.table)
+outlierReplace = function(dataframe, cols, rows, newValue = NA) {
+    if (any(rows)) {
+        set(dataframe, rows, cols, newValue)
+    }
+}
+
+my_data = wines
+
+outlierReplace(my_data, "chlorides", which(my_data$chlorides > 0.1), NA)
+
+ggplot(wines, aes(x= chlorides))+
+  geom_histogram()
+```
+
+``` {r  Multivariate_Plots_2}
+
+
+chlr_grad <- ggplot(wines, aes(x= alcohol, color= quality, y= chlorides))+
+  geom_jitter()+
+  scale_color_gradient(low = "blue", high = "red")
+
+alcl_chlr <- ggplot(wines, aes(x= alcohol, chlorides))+
+  geom_jitter()+
+  geom_smooth(method = "lm")
+
+grid.arrange(alcl_chlr, chlr_grad)
+  
+
+
+
+
+
+```
+
+> After removing the outliers from chlorides I created a bivariate plot with alcohol against chlorides and a scale_color_gradient plot in attempt to find an understanding between quality, alcohol, and chlorides. We can see that as alcohol content increases we get a decrease in the amount of chlorides present. This concurs with prior plots when you consider the following:
+ 1. Quality decreases as our chloride value increases
+ 2. Quality increases as our alcohol value increases
+ 
+> Thus we would expect alcohol and chlorides to have an inverse relationship. Now when we look at our gradient graph we can see that quality increases as we move towards the bottom right of the plot. In other words as we increase alcohol content and decrease chlorides we should get a higher quality wine. It may be helpful to create a variable that represents a ratio of chlorides/alcohol and find the correlation between this new ratio and quality. If we can attain a higher correlation value we may be on the rght track.
+
+```{r Multivariate_Plots_3}
+
+wines$al_chlr <- (winedf$chlorides/winedf$alcohol)
+
+ggplot(wines, aes(x = al_chlr, y = quality))+
+  geom_jitter()+
+  geom_smooth(method="lm")
+
+cor.test(wines$al_chlr, wines$quality)
+```
+> After performing Pearson's correlation test we can see that my intuition was incorrect. The correlation value came to -0.263 (relatively weak) and was confirmed as a useable value by p-value < 2.2e-16 (much lower than typically accepted 0.05). Thus we must continue to further investigate what factors influence quality.
